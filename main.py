@@ -142,7 +142,7 @@ show_image(image, custom_image_prediction.argmax(dim=1).item(), ["Cat", "Dog"])
 
 
 ######################################
-##### Test the model on single img ###
+################### Evaluate model ###
 ######################################
 import util.eval_model as em
 
