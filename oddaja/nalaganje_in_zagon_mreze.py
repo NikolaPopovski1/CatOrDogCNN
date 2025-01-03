@@ -193,7 +193,6 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 #optimizer = torch.optim.SGD(model.parameters(), lr=0.0001)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-"""
 ############################################################################
 ####################### Load model #########################################
 ############################################################################
@@ -203,16 +202,16 @@ def load_checkpoint(checkpoint, model, optimizer):
     optimizer.load_state_dict(checkpoint["optimizer"])
 
 try:
-    checkpoint = torch.load("checkpoint_12.pth.tar", weights_only=False)
+    checkpoint = torch.load("trained_model_epoch_12.pth.tar", weights_only=False)
     load_checkpoint(checkpoint, model, optimizer)
 except FileNotFoundError:
     print("Checkpoint file not found. Starting from scratch.")
-"""
 
 
 ############################################################################
 ###################### Train model #########################################
 ############################################################################
+"""
 from train_model import train_model
 train_model(
     model=model, 
@@ -222,6 +221,8 @@ train_model(
     optimizer=optimizer, 
     device=device
 )
+"""
+
 
 ############################################################################
 ##### Test the model on single img #########################################
@@ -231,7 +232,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 torch.manual_seed(442)
 
-image_path = "test_imgs/8137.jpg"
+image_path = "dog.jpg"
 image = torchvision.io.read_image(image_path).type(torch.float32) / 255.0
 
 min_dim = min(image.shape[1], image.shape[2])  # image.shape je (C, H, W)

@@ -63,7 +63,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 torch.manual_seed(442)
 
-image_path = "test_imgs/8137.jpg"
+image_path = "test_imgs/cat.jpg"
 image = torchvision.io.read_image(image_path).type(torch.float32) / 255.0
 
 min_dim = min(image.shape[1], image.shape[2])  # image.shape je (C, H, W)
