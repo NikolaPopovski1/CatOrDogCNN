@@ -4,6 +4,7 @@
 ##################################################################################################################
 ##################################################################################################################
 
+
 ######################################
 ######################## Load data ###
 ######################################
@@ -54,12 +55,12 @@ torch.manual_seed(442)
 
 train_time_start = timer()
 epochs = 12
-load_model = False
+load_model = True
 
 if load_model:
     try:
-        checkpoint = torch.load("checkpoint_9_1.pth.tar")
-        load_checkpoint(checkpoint)
+        checkpoint = torch.load("checkpoint_12.pth.tar", weights_only=False)
+        load_checkpoint(checkpoint, model, optimizer)
     except FileNotFoundError:
         print("Checkpoint file not found. Starting from scratch.")
 else:
@@ -114,7 +115,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 torch.manual_seed(442)
 
-image_path = "test_imgs/11.jpg"
+image_path = "test_imgs/8137.jpg"
 image = torchvision.io.read_image(image_path).type(torch.float32) / 255.0
 
 min_dim = min(image.shape[1], image.shape[2])  # image.shape is (C, H, W)
@@ -136,5 +137,19 @@ def show_image(image, label, classes):
     plt.show()
 
 # Show the image with the prediction
-show_image(image, custom_image_prediction.argmax(dim=1).item(), ["Dog", "Cat"])
+show_image(image, custom_image_prediction.argmax(dim=1).item(), ["Cat", "Dog"])
 #"""
+
+
+######################################
+##### Test the model on single img ###
+######################################
+import util.eval_model as em
+
+model_0_results = em.eval_model(
+    model=model, 
+    data_loader=val_dataloader,
+    loss_fn=loss_fn, 
+    accuracy_fn=accuracy_fn
+)
+print(model_0_results)
