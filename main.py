@@ -44,68 +44,16 @@ writer = SummaryWriter(log_dir=log_dir)
 ######################################
 ### Training and testing functions ###
 ######################################
-import torch
-from timeit import default_timer as timer
-from tqdm.auto import tqdm
-from util.save_and_load_funs import save_checkpoint, load_checkpoint
-from util.train_and_test_step_funs import train_step, test_step
-from util.accuracy_fn import accuracy_fn
-
-torch.manual_seed(442)
-
-train_time_start = timer()
-epochs = 12
-load_model = True
-
-if load_model:
-    try:
-        checkpoint = torch.load("checkpoint_12.pth.tar", weights_only=False)
-        load_checkpoint(checkpoint, model, optimizer)
-    except FileNotFoundError:
-        print("Checkpoint file not found. Starting from scratch.")
-else:
-    # Training loop
-    for epoch in tqdm(range(epochs)):
-        print(f"Epoch {epoch}\n-------------------------------")
-
-        # Perform training step and get the training loss
-        train_loss = train_step(
-            model=model, 
-            data_loader=train_dataloader, 
-            loss_fn=loss_fn,
-            optimizer=optimizer,
-            accuracy_fn=accuracy_fn,
-            device=device,
-            val_dataloader=val_dataloader,
-            epoch=epoch,
-            writer=writer
-        )
-        
-        # Perform testing step and get the test loss
-        test_loss = test_step(
-            model=model,
-            data_loader=val_dataloader,
-            loss_fn=loss_fn,
-            accuracy_fn=accuracy_fn,
-            device=device,
-            epoch=epoch,
-            writer=writer
-        )
-        
-        checkpoint = {
-            'state_dict': model.state_dict(), 
-            'optimizer': optimizer.state_dict()
-        }
-        if (epoch+1) >= 11:
-            save_checkpoint(checkpoint, filename=f"checkpoint_{epoch+1}.pth.tar")
-        
-        writer.flush()
-
-    # Calculate and print training time
-    train_time_end = timer()
-    print(f"Training time: {train_time_end - train_time_start:.2f}s")
-    writer.close()
-
+from util.train_model import train_model
+train_model(
+    model=model, 
+    train_dataloader=train_dataloader, 
+    val_dataloader=val_dataloader,
+    loss_fn=loss_fn, 
+    optimizer=optimizer, 
+    device=device,
+    writer=writer
+)
 
 ######################################
 ##### Test the model on single img ###
@@ -118,10 +66,10 @@ torch.manual_seed(442)
 image_path = "test_imgs/8137.jpg"
 image = torchvision.io.read_image(image_path).type(torch.float32) / 255.0
 
-min_dim = min(image.shape[1], image.shape[2])  # image.shape is (C, H, W)
+min_dim = min(image.shape[1], image.shape[2])  # image.shape je (C, H, W)
 image_transform = transforms.Compose([
-    transforms.CenterCrop(min_dim),  # Crop to the smallest dimension (1:1 ratio)
-    transforms.Resize((64, 64))      # Resize to 64x64
+    transforms.CenterCrop(min_dim),
+    transforms.Resize((64, 64))
 ])
 image = image_transform(image)
 
@@ -145,6 +93,7 @@ show_image(image, custom_image_prediction.argmax(dim=1).item(), ["Cat", "Dog"])
 ################### Evaluate model ###
 ######################################
 import util.eval_model as em
+from util.accuracy_fn import accuracy_fn
 
 model_0_results = em.eval_model(
     model=model, 
